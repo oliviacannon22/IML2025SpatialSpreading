@@ -16,7 +16,7 @@ par.c=1; %cost of altruism to individual
 par.g0=5; %general birth param (probably could be scaled out)
 par.sd_rc=4; %width of competition kernel (should be wider than altruism kernel)
 par.kD=3e-2; %diffusion coeff. of motility
-par.kDy=.005*par.kD; %right now, modeling mutation of altruism by diffusion, much slower than motility diffusion
+par.kDy=.05*par.kD; %right now, modeling mutation of altruism by diffusion, much slower than motility diffusion
 par.K=10; %carrying capacity, roughly speaking
 par.b0=0.5; %param for saturating nonlin
 par.b_max=2; %param for saturating nonlin
@@ -39,8 +39,8 @@ disp(['Iter: ' num2str(iter)]);
 %eventually
 numPar.Ly = 1;
 numPar.Lx = 10;
-numPar.nx = 100;
-numPar.ny = 100;
+numPar.nx = 150;
+numPar.ny = 150;
 numPar.dx = numPar.Lx/numPar.nx;
 numPar.dy=numPar.Ly/numPar.ny;
 
