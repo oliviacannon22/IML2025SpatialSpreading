@@ -41,8 +41,8 @@ numPar.Ly = 1;
 numPar.Lx = 10;
 numPar.nx = 150;
 numPar.ny = 150;
-numPar.dx = numPar.Lx/numPar.nx;
-numPar.dy=numPar.Ly/numPar.ny;
+numPar.dx = numPar.Lx/(numPar.nx-1);
+numPar.dy = numPar.Ly/(numPar.ny-1);
 
 numPar.xgrid = 'F_Periodic'; % FD = finite differences, F_Periodic = Fourier, Periodic BC
 numPar.ygrid = 'FD'; %FD = finite differences Neumann 
@@ -50,13 +50,8 @@ numPar.order = '2'; % Order of numerical scheme
 par.Ly = numPar.Ly;
 par.Lx = numPar.Lx;
 
-hx = numPar.Lx/(numPar.nx-1);
-hy = numPar.Ly/(numPar.ny-1);
-
-x = 0:hx:numPar.Lx;  % Domain
-y = 0:hy:numPar.Ly;
-
-[X,Y] = meshgrid(x,y); % Domain mesh
+x = 0:numPar.dx:numPar.Lx;  % Domain
+y = 0:numPar.dy:numPar.Ly;
 
 
 % Define initial condition 
@@ -72,10 +67,19 @@ U(1:numPar.nx/2,numPar.ny/2:end) = 0;
 U = U + normrnd(0,.2,numPar.nx,numPar.ny);
 U = U(:);
 
+%"Compute Linear Operator" outputs the matrix for the finite difference
+%approximation of (here) the Laplacian (2nd derivative) 
+%boundary conditions given by what we put in for numPar.xgrid (and ygrid)
+%ComputeLinearOperator would output four outputs but we only want the
+%3rd,so that's why the squiggles are there
 
 % Compute Linear Operator for evolution
-[~,~,L2,~] = ComputeLinearOperator_rectangular(numPar); 
-L2 = par.kD.*L2;
+[~,~,L2x,~] = ComputeLinearOperator_rectangular(numPar); 
+L2x = par.kD.*L2x; %multiply componentwise by diffusion coefficient 
+
+%the following part is sort of hacky and is to get a Laplacian
+%with different boundary conditions and coefficient for when we diffuse in
+%altruism. but it's ok if it makes no sense
 numPar.xgrid='FD';numPar.Lx=numPar.Ly;%change the xgrid bc the 2nd deriv always groups by x, but need one Neumann for y
 %FD = finite differences Neumann 
 [~,~,L2y,~] = ComputeLinearOperator_rectangular(numPar); 
@@ -83,7 +87,7 @@ L2y = par.kDy.*L2y;
 numPar.Lx=10;
 
 % Matrix for implicit
-D2Ux = speye(numPar.nx*numPar.ny) - dt/2*L2;  %  block matrix - this implementation assumes the same number of x and y gridpoints. 
+D2Ux = speye(numPar.nx*numPar.ny) - dt/2*L2x;  %  block matrix - this implementation assumes the same number of x and y gridpoints. 
 D2Uy = speye(numPar.nx*numPar.ny) - dt/2*L2y;  %  block matrix - this implementation assumes the same number of x and y gridpoints.
 % Prepare for first step
 tmp_y1 = groupX(L2y*groupY(U,numPar),numPar);              % Need to group by Y to take Y derivative, then regroup by X . 
@@ -92,18 +96,17 @@ if video_on
     open(v);
 end
 
+   %
    tmpU = reshape(U,numPar.nx,numPar.ny);
                 figure(1); pcolor(x,y,tmpU); shading interp; 
-                %axis square
-           
-                %title(['time=' num2str(k*dt), ' total pop = ' num2str(numPar.dx^2*sum(U)) ])
                 colorbar;
-                drawnow
+                drawnow;
 
 
 for k = 1:iter
+        %this is the main step where 
+
         % Grouped by x at beginning of each loop
-    
         % Implicit in X, explicit in Y   - grouped by x 
        % Evaluate nonlinear term!
        fU = altruismnonlin_varyingphi(U,par,numPar); 
@@ -111,7 +114,7 @@ for k = 1:iter
        U = D2Ux \ ( U+ dt/2 * tmp_y1 + dt/2 * fU);   % Grouped by X 
 
         % Implicit in Y, explicit in X - grouped by y
-        tmp_x1 = groupY(L2*U,numPar);      % currently grouped by x
+        tmp_x1 = groupY(L2x*U,numPar);      % currently grouped by x
         
         
         
@@ -130,10 +133,10 @@ for k = 1:iter
          if mod(k,10) == 1
             
                 tmpU = reshape(U,numPar.nx,numPar.ny);
-                figure(1); pcolor(x,y,tmpU); shading interp; 
-               % axis square
-                title(['time=' num2str(k*dt), ' total pop = ' num2str(numPar.dx^2*sum(U)) ])
+                figure(1); pcolor(x,y,tmpU); shading interp;
+                title(['time=' num2str(k*dt), ' total pop = ' num2str(numPar.dx^2*sum(U)) ]);
                 colorbar;
+                drawnow;
 
                 if video_on
                     fr = getframe();
