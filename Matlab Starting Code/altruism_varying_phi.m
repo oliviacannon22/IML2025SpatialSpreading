@@ -32,7 +32,7 @@ numPar.tf = 1000;  % Final time
 t = 0:dt:numPar.tf;
 iter = length(t);
 
-disp(['Iter: ' num2str(iter)]);
+%disp(['Iter: ' num2str(iter)]);
 
 % Numerical parameters (length of domain and number of grid points)
 %currently, nx and ny have to be the same, but want to change that
@@ -41,7 +41,7 @@ numPar.Ly = 1;
 numPar.Lx = 10;
 numPar.nx = 150;
 numPar.ny = 150;
-numPar.dx = numPar.Lx/(numPar.nx-1);
+numPar.dx = numPar.Lx/(numPar.nx-1); % dx and dy represent the length of cells
 numPar.dy = numPar.Ly/(numPar.ny-1);
 
 numPar.xgrid = 'F_Periodic'; % FD = finite differences, F_Periodic = Fourier, Periodic BC
@@ -55,26 +55,31 @@ y = 0:numPar.dy:numPar.Ly;
 
 
 % Define initial condition 
+% U is a vector containing the density at each value of x and altriusm.
+
+
 %U = 100*ones(numPar.nx,numPar.ny);
 %U(numPar.nx/2:end,numPar.ny/2:end) = 200;
 %U(numPar.nx/2:end,1:numPar.ny/2) = 50;
 %U = U(:);
-U = 1*ones(numPar.nx,numPar.ny);
+U = 1*ones(numPar.nx,numPar.ny); %1st coordinate indexes x position
 U(end-numPar.nx/10:end,numPar.ny/2:end) = 75;
 U(numPar.nx/2:end,1:numPar.ny/2) = 0;
 U(numPar.nx/2-numPar.nx/10:numPar.nx/2,1:numPar.ny/2) = 50;
 U(1:numPar.nx/2,numPar.ny/2:end) = 0;
 U = U + normrnd(0,.2,numPar.nx,numPar.ny);
-U = U(:);
+U = U(:); %converts matrix to vector by stacking columns on top of each other
 
 %"Compute Linear Operator" outputs the matrix for the finite difference
 %approximation of (here) the Laplacian (2nd derivative) 
+%Letting Uxx represent the second x derivative of U, compute linear
+%operator gives the matrix M such that MU = Uxx.
 %boundary conditions given by what we put in for numPar.xgrid (and ygrid)
 %ComputeLinearOperator would output four outputs but we only want the
 %3rd,so that's why the squiggles are there
 
 % Compute Linear Operator for evolution
-[~,~,L2x,~] = ComputeLinearOperator_rectangular(numPar); 
+[~,~,L2x,~] = ComputeLinearOperator_rectangular(numPar);
 L2x = par.kD.*L2x; %multiply componentwise by diffusion coefficient 
 
 %the following part is sort of hacky and is to get a Laplacian
