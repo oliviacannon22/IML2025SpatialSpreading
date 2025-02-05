@@ -24,7 +24,7 @@ v1=v1.*yvec;
 %for each fixed x, add up all the y*v1(x,y) over y
 for i = 1:Nx
     start = Ny*(i-1) + 1;
-    wx(i)=sum(dy*v1(start:start+Ny-1)); %result is a vector of length Nx
+    wx(i)=sum(dy*v1(start:start+Ny-1)); %end result after loop is a vector of length Nx
 end 
 
 
