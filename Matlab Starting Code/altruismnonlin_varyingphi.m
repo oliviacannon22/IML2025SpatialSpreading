@@ -4,6 +4,7 @@ function f = altruismnonlin_varyingphi(p,par,numPar)
 %sd_a is altruism standard dev and sd_rc is competition standard dev
 %everything else is parameters from paper
 dx=numPar.dx;
+dy=numPar.dy;
 N=numPar.nx;
 g0=par.g0;
 c=par.c;
@@ -39,7 +40,7 @@ end
 
 
 %ignore the commented out nonlinearities below -- from earlier simplified versions
-f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,N,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,N,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,N,G_rc,dx))... %full model varying altruism
+f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,N,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,N,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,N,G_rc,dx,dy))... %full model varying altruism
 ...%g0*p.*(1-c*phi + (b_max*phi*twodimconv(p,N,G_a,G_a,dx))./(b_max/b0 + phi*twodimconv(p,N,G_a,G_a,dx))).*(1-twodimconv(p,N,G_rc,G_rc,dx)/K)... %keeps altruism constant
 ...%g0*p.*(1-c*phi + (b0*phi*twodimconv(p,N,G_a,G_a,dx))-twodimconv(p,N,G_rc,G_rc,dx)/K-cap*p)... %quadratic only, constant altruism
 -d*p; 
