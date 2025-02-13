@@ -9,7 +9,7 @@ Ny=length(v1)/Nx;
 
 yvec=linspace(0,1,Ny);
 yvec=repmat(yvec,1,Nx)';
-dy=1/Ny;
+dy=1/(Ny-1);
 
 %initialize the eventual output vector
 w=zeros(length(v1),1);
