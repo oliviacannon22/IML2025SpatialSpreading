@@ -79,7 +79,9 @@ U = U(:);
 L2x = par.kD.*L2x; %multiply componentwise by diffusion coefficient
 L2y = par.kDy.*L2y;
 
-
+%Code for task 3
+%Matrix for implicit one-time step
+%DUx = speye(numPar.nx*numPar.ny) - dt*L2x;
 
 % Matrix for implicit
 D2Ux = speye(numPar.nx*numPar.ny) - dt/2*L2x;  %  block matrix - this implementation assumes the same number of x and y gridpoints. 
@@ -126,10 +128,18 @@ for k = 1:iter
         %equation this is solving:
         %U_new = U_old + dt/2*(d^2/dx^2(U_old) + d^2/dy^2(U_new) + f(U_old)
        
+
+        %code for task 3
+        %After changing mutation term, we use one-time step
+        % U = DUx \( U + dt * mu*( (fU + dU)*K - (fU + dU)) );
+        %equation this is solving:
+        %U_new = U_old + dt*(d^2/dx^2(U_old) + mu*( (fU + dU)*K - (fU + dU) ) )
+
         % Get ready for next step
         tmp_d2y = groupX(L2y*U,numPar);              % this is d^2(U)/dy^2 again
         U = groupX(U,numPar);   % Switch to X grouping 
        
+
         %plot current solution 
          if mod(k,n_plot) == 1
             

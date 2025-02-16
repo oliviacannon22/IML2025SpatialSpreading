@@ -18,8 +18,8 @@ K=par.K;
 sd_a=par.sd_a;
 sd_rc=par.sd_rc;
 %cap=par.cap;
-
-
+%mu = par.mu
+%m_scale = par.m;
 
 M=Nx*dx;
 
@@ -46,6 +46,12 @@ f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b
 ...%g0*p.*(1-c*phi + (b_max*phi*twodimconv(p,N,G_a,G_a,dx))./(b_max/b0 + phi*twodimconv(p,N,G_a,G_a,dx))).*(1-twodimconv(p,N,G_rc,G_rc,dx)/K)... %keeps altruism constant
 ...%g0*p.*(1-c*phi + (b0*phi*twodimconv(p,N,G_a,G_a,dx))-twodimconv(p,N,G_rc,G_rc,dx)/K-cap*p)... %quadratic only, constant altruism
 -d*p; 
+
+% code for task 3
+% new_guys = f + d*p;
+% new_guys(new_guys < 0) = 0; % avoid negative number
+% mutation_term = 
+%f = f + mutation_term
 
 f = groupX(f,numPar);
 
