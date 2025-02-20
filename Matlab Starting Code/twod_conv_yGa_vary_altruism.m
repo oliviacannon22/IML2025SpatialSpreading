@@ -29,7 +29,7 @@ end
 
 
 %now convolve with Gx in the x direction
-wx=convx(wx,Gx);
-w=repelem(wx,Ny);
+wx=convx(wx,Gx); %only 1D vector in X
+w=repelem(wx,Ny);  %make big vector now; benefit only depends on position, so repeat values at every y 
 
 return 
