@@ -5,7 +5,7 @@
 
 close all; clear;
 
-video_on = 0;
+video_on = 0; % turn off video
 if video_on
     v = VideoWriter('varyingaltruism','MPEG-4');
 end
