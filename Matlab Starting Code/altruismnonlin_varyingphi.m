@@ -18,7 +18,7 @@ K=par.K;
 sd_a=par.sd_a;
 sd_rc=par.sd_rc;
 %cap=par.cap;
-%mu = par.mu
+mu = par.mu;
 %m_scale = par.m;
 
 M=Nx*dx;
@@ -42,19 +42,34 @@ end
 
 
 %ignore the commented out nonlinearities below -- from earlier simplified versions
-f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,Nx,G_rc,dx,dy))... %full model varying altruism
-...%g0*p.*(1-c*phi + (b_max*phi*twodimconv(p,N,G_a,G_a,dx))./(b_max/b0 + phi*twodimconv(p,N,G_a,G_a,dx))).*(1-twodimconv(p,N,G_rc,G_rc,dx)/K)... %keeps altruism constant
-...%g0*p.*(1-c*phi + (b0*phi*twodimconv(p,N,G_a,G_a,dx))-twodimconv(p,N,G_rc,G_rc,dx)/K-cap*p)... %quadratic only, constant altruism
--d*p; 
+f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,Nx,G_rc,dx,dy))-d*p; 
 
-% code for task 3
-% new_guys = f + d*p;
-% new_guys(new_guys < 0) = 0; % avoid negative number
-% mutation_term = 
-%f = f + mutation_term
+%define convolution function
+convy =@(v1,v2) ifft(dx*fft(circshift(v2,Nx/2)).*fft(v1));
+
+%make exponential kernel for altruism convolution
+altvec = linspace(0,0.5,Ny/2);
+right_half = exppdf(altvec, sd_a);
+left_half = right_half(end:-1:1);
+altruism_conv_kernel = [left_half, right_half];
+altruism_conv_kernel = transpose(altruism_conv_kernel);
+
+new_guys = f + d*p;
+new_guys(new_guys < 0) = 0;
+
+%mutation_term = zeros(Nx*Ny, 1);
+new_guys = groupY(new_guys, numPar);
+
+for i = 1:Nx
+    start = Ny*(i-1) + 1;
+    new_guys(start:start + Ny - 1) = convy(new_guys(start:start + Ny - 1), altruism_conv_kernel);
+end
+
+%mutation_term = do.call(mutation_term);
+
+%f = reshape(f) + newguys;
+f = f + new_guys;
 
 f = groupX(f,numPar);
 
-return 
-
-
+return
