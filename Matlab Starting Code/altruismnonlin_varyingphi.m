@@ -48,11 +48,18 @@ f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b
 convy =@(v1,v2) ifft(dx*fft(circshift(v2,Nx/2)).*fft(v1));
 
 %make exponential kernel for altruism convolution
-altvec = linspace(0,0.5,Ny/2);
-right_half = exppdf(altvec, sd_a);
-left_half = right_half(end:-1:1);
-altruism_conv_kernel = [left_half, right_half];
+%altvec = linspace(0,0.5,Ny/2);
+%right_half = exppdf(altvec, sd_a);
+%left_half = right_half(end:-1:1);
+
+
+%updated mutaion kernel to make sure 0.5 has highest probability
+yvec = linspace(0, 1, numPar.ny);
+dist = abs(yvec - 0.5);
+altruism_conv_kernel = exppdf(dist, par.sd_a);
+altruism_conv_kernel = altruism_conv_kernel / trapz(yvec, altruism_conv_kernel);% adjusting values so that their sum (or integral) equals 1.
 altruism_conv_kernel = transpose(altruism_conv_kernel);
+
 
 new_guys = f + d*p;
 new_guys(new_guys < 0) = 0;
