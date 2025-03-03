@@ -45,7 +45,7 @@ end
 f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,Nx,G_rc,dx,dy))-d*p; 
 
 %define convolution function
-convy =@(v1,v2) ifft(dx*fft(circshift(v2,Nx/2)).*fft(v1));
+convy =@(v1,v2) ifft(dy*fft(circshift(v2,Ny/2)).*fft(v1));
 
 %make exponential kernel for altruism convolution
 altvec = linspace(0,0.5,Ny/2);
@@ -54,11 +54,18 @@ left_half = right_half(end:-1:1);
 altruism_conv_kernel = [left_half, right_half];
 altruism_conv_kernel = transpose(altruism_conv_kernel);
 
+a=0;
+for i = 1:Ny
+    a = a + altruism_conv_kernel(i);
+end
+
+altruism_conv_kernel = (1/a) * altruism_conv_kernel;
+
 new_guys = f + d*p;
 new_guys(new_guys < 0) = 0;
 
 %mutation_term = zeros(Nx*Ny, 1);
-new_guys = groupY(new_guys, numPar);
+%new_guys = groupY(new_guys, numPar);
 
 for i = 1:Nx
     start = Ny*(i-1) + 1;
@@ -68,6 +75,7 @@ end
 %mutation_term = do.call(mutation_term);
 
 %f = reshape(f) + newguys;
+%new_guys = groupX(new_guys, numPar);
 f = f + new_guys;
 
 f = groupX(f,numPar);
