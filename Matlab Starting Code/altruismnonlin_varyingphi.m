@@ -21,6 +21,7 @@ sd_rc=par.sd_rc;
 mu = par.mu;
 %m_scale = par.m;
 
+
 M=Nx*dx;
 
 yvec=linspace(0,1,Ny); 
@@ -69,14 +70,24 @@ altruism_conv_kernel = 0.0053 * altruism_conv_kernel;
 new_guys = f + d*p;
 new_guys(new_guys < 0) = 0;
 
+new_guys_mutated = new_guys * mu;
+new_guys_remained = new_guys * (1 - mu);
+
+%mutation_term = zeros(Nx*Ny, 1);
+new_guys_mutated = groupY(new_guys_mutated, numPar);
+
 
 %convolve new guys with mutation kernel
 for i = 1:Nx
     start = Ny*(i-1) + 1;
-    new_guys(start:start + Ny - 1) = convy(new_guys(start:start + Ny - 1), altruism_conv_kernel);
+    new_guys_mutated(start:start + Ny - 1) = convy(new_guys_mutated(start:start + Ny - 1), altruism_conv_kernel);
 end
 
-f = f + new_guys;
+%mutation_term = do.call(mutation_term);
+
+%f = reshape(f) + newguys;
+f = new_guys_remained + new_guys_mutated - d*p;
+
 f = groupX(f,numPar);
 
 return
