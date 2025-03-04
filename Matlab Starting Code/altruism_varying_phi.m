@@ -103,43 +103,28 @@ end
 
 for k = 1:iter
         %this is the main step where all the work gets done
-        %we use an implicit method to solve equations with 2nd
-        %derivatives. Since we have two of these (d^2/dx^2 and d^2/dy^2), we split dt in two and do
-        %two 'half steps': one for x, one for y
 
         % Grouped by x at beginning of each loop
-        % First "half step": Implicit in X, explicit in Y   - grouped by x 
        % Evaluate nonlinear term!
        fU = altruismnonlin_varyingphi(U,par,numPar); 
-        
-       %U = D2Ux \ ( U+ dt/2 * tmp_d2y + dt/2 * fU);   % Grouped by X 
-       %equation this is solving:
-       %U_new = U_old + dt/2*(d^2/dx^2(U_new) + d^2/dy^2(U_old) + f(U_old)
 
-        % Second "half step": Implicit in Y, explicit in X - grouped by y
-        %tmp_d2x = groupY(L2x*U,numPar);      % this is d^2(U)/dx^2 (explicit term) - (calculate while grouped by X, then regroup in Y)
         
-       % Evaluate nonlinear terms at the most recent values 
-        %fU = altruismnonlin_varyingphi(U,par,numPar); % put into function before switching grouping, bc function takes U grouped by X
         
-        %U = groupY(U,numPar);   % Switch to Y grouping 
-
-        %U = D2Uy \ (U + dt/2 * tmp_d2x + dt/2 * groupY(fU,numPar) );  % Grouped by Y
-        %equation this is solving:
-        %U_new = U_old + dt/2*(d^2/dx^2(U_old) + d^2/dy^2(U_new) + f(U_old)
-       
-
         %code for upgrade to one-time step
 
-        U = groupX(U,numPar);
-        
+        %U = groupX(U,numPar);
+       
+
         %After changing mutation term, we use one-time step
-        U = DUx \( U + dt * tmp_d2y + dt * fU); 
+
+        % U = DUx \( U + dt * mu*( (fU + dU)*K - (fU + dU)) );
+        
+        U = DUx \( U + dt * fU); 
         %equation this is solving:
-        %U_new = U_old + dt*(d^2/dx^2(U_old) + mu*( (fU + dU)*K - (fU + dU) ) )
+        %U_new = U_old + dt*(d^2/dx^2(U_new) + mu*( (fU + dU)*K - (fU + dU) ) )
 
         % Get ready for next step
-        tmp_d2y = groupX(L2y*U,numPar);              % this is d^2(U)/dy^2 again
+        %tmp_d2y = groupX(L2y*U,numPar);              % this is d^2(U)/dy^2 again
         %U = groupX(U,numPar);   % Switch to X grouping 
        
 
