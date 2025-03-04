@@ -47,37 +47,36 @@ f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b
 %define convolution function
 convy =@(v1,v2) ifft(dy*fft(circshift(v2,Ny/2)).*fft(v1));
 
-%make exponential kernel for altruism convolution
+%make convolution kernel for altruism mutation
 altvec = linspace(0,0.5,Ny/2);
 right_half = exppdf(altvec, sd_a);
 left_half = right_half(end:-1:1);
 altruism_conv_kernel = [left_half, right_half];
 altruism_conv_kernel = transpose(altruism_conv_kernel);
 
+%{
 a=0;
 for i = 1:Ny
     a = a + altruism_conv_kernel(i);
 end
-
 altruism_conv_kernel = (1/a) * altruism_conv_kernel;
+%}
+altruism_conv_kernel = 0.0053 * altruism_conv_kernel;
 
+
+
+%find only "new guys"
 new_guys = f + d*p;
 new_guys(new_guys < 0) = 0;
 
-%mutation_term = zeros(Nx*Ny, 1);
-%new_guys = groupY(new_guys, numPar);
 
+%convolve new guys with mutation kernel
 for i = 1:Nx
     start = Ny*(i-1) + 1;
     new_guys(start:start + Ny - 1) = convy(new_guys(start:start + Ny - 1), altruism_conv_kernel);
 end
 
-%mutation_term = do.call(mutation_term);
-
-%f = reshape(f) + newguys;
-%new_guys = groupX(new_guys, numPar);
 f = f + new_guys;
-
 f = groupX(f,numPar);
 
 return
