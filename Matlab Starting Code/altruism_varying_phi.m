@@ -108,17 +108,18 @@ for k = 1:iter
        % Evaluate nonlinear term!
        fU = altruismnonlin_varyingphi(U,par,numPar); 
 
-        
-        
+
+        %code for task 3
+
         %code for upgrade to one-time step
 
         %U = groupX(U,numPar);
-       
+        
 
         %After changing mutation term, we use one-time step
 
         % U = DUx \( U + dt * mu*( (fU + dU)*K - (fU + dU)) );
-        
+
         U = DUx \( U + dt * fU); 
         %equation this is solving:
         %U_new = U_old + dt*(d^2/dx^2(U_new) + mu*( (fU + dU)*K - (fU + dU) ) )
