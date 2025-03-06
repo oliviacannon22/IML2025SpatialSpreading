@@ -5,9 +5,9 @@
 
 close all; clear;
 
-video_on = 0; % turn off video
+video_on = 0; % change to 1 to turn on video
 if video_on
-    v = VideoWriter('varyingaltruism','MPEG-4');
+    v = VideoWriter('Video_name','Uncompressed AVI');
 end
 
 % System parameters
@@ -140,7 +140,7 @@ for k = 1:iter
                 drawnow;
 
                 if video_on
-                    fr = getframe();
+                    fr = getframe(gcf);
                     writeVideo(v,fr);
                 end
 

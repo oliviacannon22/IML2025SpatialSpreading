@@ -26,6 +26,8 @@ x = 0:numPar.dx:numPar.Lx;
 %Initial Conditions
 U = zeros(numPar.nx,1);
 U(5001) = 1000;
+U(2000) = 1000;
+U(7000) = 2000;
 
 %Second Derrivative Operator with Neumann BC
 D = sparse(1:numPar.nx,1:numPar.nx,[-1,-2*ones(1,numPar.nx-2),-1],numPar.nx,numPar.nx);
@@ -53,7 +55,7 @@ for k = 1:iter
          if mod(k,n_plot) == 1
             
                 figure(1); plot(x,U); ylim([-0.1 M]);
-                title(['time = ' num2str(k*dt), ' total pop = ' num2str(numPar.dx^2*sum(U))]);
+                title(['time = ' num2str(k*dt), ' total pop = ' num2str(numPar.dx*sum(U))]);
                 drawnow;
 
                 if video_on
