@@ -12,9 +12,9 @@ end
 
 % System parameters
 % add system parameters here
-par.d =1; %death rate
+par.d = 1; %death rate
 par.sd_a=0.5; %width of altruism convolution kernel
-par.c=1; %cost of altruism to individual
+par.c= 1; %cost of altruism to individual
 par.g0=5; %general birth param (probably could be scaled out)
 par.sd_rc=2; %width of competition kernel (should be wider than altruism kernel)
 par.kD=1e-2; %diffusion coeff. of motility
@@ -23,7 +23,7 @@ par.K=20; %carrying capacity, roughly speaking
 par.b0=0.5; %param for saturating nonlin
 par.b_max=2; %param for saturating nonlin
 par.mu=1e-3; %mutation probability
-par.m=5e-3; %not really used for us (but might later)
+par.m=5e-2; %not really used for us (but might later)
 par.sd_m=sqrt(2*par.kD/par.d); %"scale of motility" (different way of expressing diffusion coeff)
 %par.phi=0.08; 
 

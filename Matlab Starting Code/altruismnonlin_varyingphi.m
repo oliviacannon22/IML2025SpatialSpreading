@@ -19,7 +19,7 @@ sd_a=par.sd_a;
 sd_rc=par.sd_rc;
 %cap=par.cap;
 mu = par.mu;
-%m_scale = par.m;
+m_scale = par.m;
 
 
 M=Nx*dx;
@@ -46,11 +46,11 @@ end
 f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,Nx,G_rc,dx,dy))-d*p; 
 
 %define convolution function
-convy =@(v1,v2) ifft(dy*fft(circshift(v2,Ny/2)).*fft(v1));
+%convy =@(v1,v2) ifft(dy*fft(circshift(v2,Ny/2)).*fft(v1));
 
 %make convolution kernel for altruism mutation
 altvec = linspace(0,0.5,Ny/2);
-right_half = exppdf(altvec, sd_a);
+right_half = exppdf(altvec, m_scale);
 left_half = right_half(end:-1:1);
 altruism_conv_kernel = [left_half, right_half];
 altruism_conv_kernel = transpose(altruism_conv_kernel);
@@ -62,7 +62,7 @@ for i = 1:Ny
 end
 altruism_conv_kernel = (1/a) * altruism_conv_kernel;
 %}
-altruism_conv_kernel = 0.0053 * altruism_conv_kernel;
+altruism_conv_kernel = (1/sum(altruism_conv_kernel) * dy) * altruism_conv_kernel;
 
 
 
@@ -74,13 +74,13 @@ new_guys_mutated = new_guys * mu;
 new_guys_remained = new_guys * (1 - mu);
 
 %mutation_term = zeros(Nx*Ny, 1);
-new_guys_mutated = groupY(new_guys_mutated, numPar);
+%new_guys_mutated = groupY(new_guys_mutated, numPar);
 
 
 %convolve new guys with mutation kernel
 for i = 1:Nx
     start = Ny*(i-1) + 1;
-    new_guys_mutated(start:start + Ny - 1) = convy(new_guys_mutated(start:start + Ny - 1), altruism_conv_kernel);
+    new_guys_mutated(start:start + Ny - 1) = conv_notper(new_guys_mutated(start:start + Ny - 1), altruism_conv_kernel, dy);
 end
 
 %mutation_term = do.call(mutation_term);
