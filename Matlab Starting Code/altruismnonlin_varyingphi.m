@@ -41,9 +41,11 @@ for i = 1:Nx
     G_rc(i)=gaus(xx(i),sd_rc,1/(sqrt(2*pi)*sd_rc)); 
 end 
 
-
+repr=(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,Nx,G_rc,dx,dy));
+repr=repr.*(repr>0);
 %ignore the commented out nonlinearities below -- from earlier simplified versions
-f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,Nx,G_rc,dx,dy))-d*p; 
+%f = g0*p.*(1-c*yvec + (b_max*twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))./(b_max/b0+twod_conv_yGa_vary_altruism(p,Nx,G_a,dx))).*(1-1/K*twod_conv_Grc_vary_altruism(p,Nx,G_rc,dx,dy))-d*p; 
+f = g0*p.*repr-d*p; 
 
 %define convolution function
 %convy =@(v1,v2) ifft(dy*fft(circshift(v2,Ny/2)).*fft(v1));
@@ -62,7 +64,7 @@ for i = 1:Ny
 end
 altruism_conv_kernel = (1/a) * altruism_conv_kernel;
 %}
-altruism_conv_kernel = (1/sum(altruism_conv_kernel) * dy) * altruism_conv_kernel;
+altruism_conv_kernel = 1/sum(altruism_conv_kernel*dy) * altruism_conv_kernel;
 
 
 
