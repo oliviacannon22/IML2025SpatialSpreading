@@ -2,62 +2,26 @@
 % Boundary conditions set by the Laplacian operator (2nd derivative) in
 % both space and altruism parameter 
 %any time you see Y here, it is altruism parameter, and X is space
+function f = altruism_varying_phi(par,numPar,video_on) 
 
-close all; clear;
+close all;
 
 Video_name='Some_stripes';
-video_on = 1; % change to 1 to turn on video
 if video_on
     v = VideoWriter(Video_name,'Uncompressed AVI');
    v.FrameRate=20;
 end
 
-% System parameters
-% add system parameters here
-par.d = 1; %death rate
-par.sd_a=0.2; %width of altruism convolution kernel
-par.c= .5; %cost of altruism to individual
-par.g0=5; %general birth param (probably could be scaled out)
-par.sd_rc=2; %width of competition kernel (should be wider than altruism kernel)
-par.kD=1e-3; %diffusion coeff. of motility
-par.kDy=.01*par.kD; %right now, modeling mutation of altruism by diffusion, much slower than motility diffusion
-par.K=20; %carrying capacity, roughly speaking
-par.b0=0.5; %param for saturating nonlin
-par.b_max=2; %param for saturating nonlin
-par.mu=1e-3; %mutation probability
-par.m=1e-2; %
-par.sd_m=sqrt(2*par.kD/par.d); %"scale of motility" (different way of expressing diffusion coeff)
-%par.phi=0.08; 
-
-
 % Set numerical and system parameters
 dt = 0.05;
-numPar.tf = 2000;  % Final time
 t = 0:dt:numPar.tf;
 iter = length(t);
 n_plot=40; %how often we plot, or every ___ time steps
 
-disp(['Iter: ' num2str(iter)]);
-
-% Numerical parameters (length of domain and number of grid points)
-%currently, nx and ny have to be the same, but want to change that
-%eventually
-numPar.Ly = 1;
-numPar.Lx = 30;
-numPar.nx = 400;
-numPar.ny = 150;
-numPar.dx = numPar.Lx/(numPar.nx-1);
-numPar.dy = numPar.Ly/(numPar.ny-1);
-
-numPar.xgrid = 'FD_Periodic'; % FD_Periodic = finite differences periodic, F_Periodic = Fourier, Periodic BC (assumes 2pi periodic)
-numPar.ygrid = 'FD'; %FD = finite differences Neumann 
-numPar.order = '2'; % Order of numerical scheme
-par.Ly = numPar.Ly;
-par.Lx = numPar.Lx;
+%disp(['Iter: ' num2str(iter)]);
 
 x = 0:numPar.dx:numPar.Lx;  % Domain
 y = 0:numPar.dy:numPar.Ly;
-
 
 % Define initial condition 
 %U = 20*ones(numPar.nx,numPar.ny);
@@ -70,9 +34,9 @@ U=zeros(numPar.nx,numPar.ny);
  %stripes
  %alt_stripes start with higher altruism, superalt_stripes even higher. 
  s_wid=round(numPar.nx/numPar.Lx); %width of one stripe
- n_stripes = 15; %total stripes
- n_superalt_stripes=0; %how many very altruistic stripes
- n_selfish_stripes=1; %how many selfish stripes
+ n_stripes = 2; %total stripes
+ n_superalt_stripes=2; %how many very altruistic stripes
+ n_selfish_stripes=0; %how many selfish stripes
  n_alt_stripes=n_stripes-n_selfish_stripes; %how many middle-altruistic stripes
  s_starts=linspace(1,numPar.nx,n_stripes+1);
  s_starts=s_starts(1:end-1);
@@ -81,7 +45,7 @@ U=zeros(numPar.nx,numPar.ny);
  %with having every other, for instance
  if n_superalt_stripes > 0
     for i = 1:n_superalt_stripes %altruism between 3/8 and 7/8
-    U(s_starts(i):s_starts(i)+s_wid,round(3*numPar.ny/8):round(7*numPar.ny/8)) = 5;
+    U(s_starts(i):s_starts(i)+s_wid,round(1*numPar.ny/8):round(5*numPar.ny/8)) = 5;
     end
  end 
 
@@ -121,14 +85,6 @@ tmp_d2y = groupX(L2y*groupY(U,numPar),numPar);              % this is d^2(U)/dy^
 if video_on
     open(v);
 end
-
-   %plot initial condition 
-   %this step makes a temporary U that is a proper square (vs vector) and plots it, 
-   tmpU = reshape(U,numPar.nx,numPar.ny)';
-                figure(1); pcolor(x,y,tmpU); shading interp; 
-                colorbar;
-                drawnow;
-
 
 for k = 1:iter
         %this is the main step where all the work gets done
@@ -183,13 +139,16 @@ for k = 1:iter
                 nexttile
                 plot(x,tmpUx)
                 title(['time=' num2str(k*dt), 'Population at each x value'])
+                ylim([0 300]) 
                 nexttile([2 1])
+       
             
                 %plot the current solution at time t
                 tmpU = reshape(U,numPar.nx,numPar.ny)';
                 ymax=round(7*numPar.ny/8); %plot only part of picture to see more clearly
                 tmpU=tmpU(1:ymax,:);
                 pcolor(x,y(1:ymax),tmpU); shading interp;
+                clim([0 10000]);
                 hold on
                 plot(x,avgAltx.*(tmpUx>0.7*max(tmpUx)),'o','Color','red') %plot the average altruism level on top of the figure, but only for where a lot of population is 
                 title(['time=' num2str(k*dt), ' total pop = ' num2str(numPar.dx*numPar.dy*sum(U)) ]);
@@ -230,5 +189,7 @@ if video_on
 
     close(v);
 end
+
+return
 
 
